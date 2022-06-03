@@ -1,0 +1,60 @@
+version: '3.4'
+
+services:
+  api:
+    image: ${DOCKER_REGISTRY-}api
+    build:
+      context: .
+      dockerfile: API/Dockerfile
+    networks: 
+      - app_rabbit_redis_net
+
+#  #job1:
+#  #  image: ${DOCKER_REGISTRY-}job1
+#  #  container_name: job1
+#  #  build:
+#  #    context: .
+#  #    dockerfile: Job1/Dockerfile
+#  #  networks: 
+#  #    - app_rabbit_redis_net
+   
+  rabbitmq-app:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq-app
+    hostname: rabbitmq-app
+    volumes:
+      - mq_data:/var/lib/rabbitmq/mnesia
+      - ./rabbitmq.plugins:/etc/rabbitmq/enabled_plugins
+    environment:
+      RABBITMQ_DEFAULT_USER: devweek
+      RABBITMQ_DEFAULT_PASS: UCpkGkG37xgDzNvG6rbkGDuVeyNc4vlcVtDorn3wPFhR9URvhDN6cSeOzL4HXN3u4Z3Ahv
+      RABBITMQ_DEFAULT_VHOST: platform
+    networks: 
+      - app_rabbit_redis_net 
+
+  redis:
+    image: redis:alpine
+    networks: 
+      - app_rabbit_redis_net
+      
+  #consoleapp1:
+  #  image: ${DOCKER_REGISTRY-}consoleapp1
+  #  build:
+  #    context: .
+  #    dockerfile: ConsoleApp1/Dockerfile
+  #  networks: 
+  #    - app_rabbit_redis_net 
+
+  workerservice1:
+    image: ${DOCKER_REGISTRY-}workerservice1
+    build:
+      context: .
+      dockerfile: WorkerService1/Dockerfile
+    networks: 
+      - app_rabbit_redis_net 
+
+volumes:
+  mq_data:
+  
+networks:
+  app_rabbit_redis_net:
